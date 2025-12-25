@@ -1541,14 +1541,15 @@ export class chatgpt extends plugin {
       }
       if (err === 'Error: {"detail":"Conversation not found"}') {
         await this.destroyConversations(err)
-        await this.reply('当前对话异常，已经清除，请重试', true, { recallMsg: isTrss ? 0 : (e.isGroup ? 30 : 0) })
+        // await this.reply('当前对话异常，已经清除，请重试', true, { recallMsg: isTrss ? 0 : (e.isGroup ? 30 : 0) })
       } else {
         let errorMessage = err?.message || err?.data?.message || (typeof (err) === 'object' ? JSON.stringify(err) : err) || '未能确认错误类型！'
         errorMessage = hidePrivacyInfo(errorMessage);
         if (forcePictureMode || userSetting.usePicture || (Config.autoUsePicture && errorMessage.length > Config.autoUsePictureThreshold)) {
           await this.renderImage(e, use, `出现异常,错误信息如下 \n \`\`\`${errorMessage}\`\`\``, prompt)
         } else {
-          await this.reply(`出现错误：${errorMessage.substring(0, 200)}`, true, { recallMsg: isTrss ? 0 : (e.isGroup ? 30 : 0) })
+          logger.error(err)
+          // await this.reply(`出现错误：${errorMessage.substring(0, 200)}`, true, { recallMsg: isTrss ? 0 : (e.isGroup ? 30 : 0) })
         }
       }
     } finally {
@@ -1646,7 +1647,8 @@ export class chatgpt extends plugin {
     let cacheData = await this.cacheContent(e, use, content, prompt, quote, mood, suggest, imgUrls)
     // const template = use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index'
     if (!cacheData || cacheData.error || cacheData.status != 200) {
-      await this.reply(`出现错误：${cacheData?.error || 'server error ' + (cacheData?.status || 'unknown')}`, true)
+      // await this.reply(`出现错误：${cacheData?.error || 'server error ' + (cacheData?.status || 'unknown')}`, true)
+      logger.info(`出现错误：${cacheData?.error || 'server error ' + (cacheData?.status || 'unknown')}`, true)
     } else {
       await this.reply(await renderUrl(e, (Config.viewHost ? `${Config.viewHost}/` : `http://127.0.0.1:${Config.serverPort || 3321}/`) + `page/${cacheData.file}?qr=${Config.showQRCode ? 'true' : 'false'}`, {
         retType: Config.quoteReply ? 'base64' : '',
