@@ -67,7 +67,7 @@ import { AtOtherUserTool } from '../utils/tools/At_otherUser.js'
 import { SendGroupPokeTool } from '../utils/tools/SendGroupPoke.js'
 import { SandboxJSTool } from '../utils/tools/Sandbox_JS.js'
 import { GetPixivApiLoliconTool } from '../utils/tools/GetPixivApiLoliconTool.js'
-import { RecognitionResultsByGeminiTool } from '../utils/tools/RecognitionResultsByGeminiTool.js'
+// import { RecognitionResultsByGeminiTool } from '../utils/tools/RecognitionResultsByGeminiTool.js'
 import { EmojiTool } from '../utils/tools/EmojiTool.js'
 import { MemoryTool } from '../utils/tools/MemoryTool.js'
 
@@ -927,7 +927,7 @@ async function collectTools(e) {
     new SetTitleTool(),
     new GithubAPITool(),
     new BlockUserTool(),
-    new RecognitionResultsByGeminiTool(),
+    // new RecognitionResultsByGeminiTool(),
   ]
   // todo 3.0再重构tool的插拔和管理
   let /** @type{AbstractTool[]} **/ tools = [ // Gemini 只有取 tools，不取 fullTools
@@ -952,7 +952,7 @@ async function collectTools(e) {
     new QueryUserinfoTool(), // 查看用户 e.sender 工具
     new GithubAPITool(),
     new BlockUserTool(),
-    new RecognitionResultsByGeminiTool(),
+    // new RecognitionResultsByGeminiTool(),
   ]
 
   if (!Config.disable_sendMessage_tool) {
