@@ -739,7 +739,7 @@ export class chatgpt extends plugin {
     if (Config.imgOcr && !!isImg) {
       let imgOcrText = await getImageOcrText(e)
       if (imgOcrText) {
-        prompt = prompt + '拿出了一张图片上面写着:"'
+        prompt = prompt + '"'
         for (let imgOcrTextKey in imgOcrText) {
           prompt += imgOcrText[imgOcrTextKey]
         }
@@ -759,7 +759,7 @@ export class chatgpt extends plugin {
     if (Config.recognitionByGemini && !!isImg) {
       let imgRecognitionByGeminiText = await recognitionResultsByGemini(e, isImg)
       if (imgRecognitionByGeminiText) {
-        prompt = '拿出了一张照片，上面的内容是："' + imgRecognitionByGeminiText + '"' + prompt
+        prompt = '"' + imgRecognitionByGeminiText + '"' + prompt
       }
     }
 
