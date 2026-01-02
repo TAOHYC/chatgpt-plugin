@@ -285,7 +285,7 @@ export class CustomGoogleGeminiClient extends GoogleGeminiClient {
       if (retryTime <= 0) {
         throw new Error(errorText)
       }
-      logger.warn(`[chatgpt] Gemini API 错误 (${result.status}),进行重试。错误信息: ${errorText}`)
+      // logger.warn(`[chatgpt] Gemini API 错误 (${result.status}),进行重试。错误信息: ${errorText}`)
       return this.sendMessage(text, opt, --retryTime)
     }
     /**
