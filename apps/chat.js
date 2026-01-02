@@ -759,10 +759,9 @@ export class chatgpt extends plugin {
     if (Config.recognitionByGemini && !!isImg) {
       let imgRecognitionByGeminiText = await recognitionResultsByGemini(e, isImg)
       if (imgRecognitionByGeminiText) {
-        prompt = prompt
+        prompt = '拿出了一张照片，上面的内容是："' + imgRecognitionByGeminiText + '"' + prompt
       }
     }
-// '"' + imgRecognitionByGeminiText + '"' +
     // 检索是否有屏蔽词 输入黑名单
     const promtBlockWord = Config.promptBlockWords.find(word => prompt.toLowerCase().includes(word.toLowerCase()))
     if (promtBlockWord) {
