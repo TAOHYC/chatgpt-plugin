@@ -1,4 +1,4 @@
-﻿import plugin from '../../../lib/plugins/plugin.js'
+import plugin from '../../../lib/plugins/plugin.js'
 import { createRequire } from 'module'
 import _ from 'lodash'
 import { Restart } from '../../other/restart.js'
@@ -152,7 +152,7 @@ export class Update extends plugin {
 
     let end = ''
     end =
-      '更多详细信息，请前往github查看\nhttps://github.com/misaka20002/chatgpt-plugin/commits/v2'
+      '更多详细信息，请前往github查看\nhttps://github.com/TAOHYC/chatgpt-plugin'
 
     log = await this.makeForwardMsg(`chatgpt-plugin更新日志，共${line}条`, log, end)
 
