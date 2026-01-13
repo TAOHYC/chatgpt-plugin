@@ -709,6 +709,12 @@ export function supportGuoba() {
           }
         },
         {
+          field: 'neteaseMusicCookie',
+          label: '网易云音乐Cookie',
+          bottomHelpMessage: '网易云音乐的MUSIC_U cookie值，用于音乐分享语音功能获取歌曲播放地址。可在网易云网页版登录后获取Cookie中的MUSIC_U字段值。',
+          component: 'InputPassword'
+        },
+        {
           label: '语音',
           component: 'SOFT_GROUP_BEGIN'
         },
