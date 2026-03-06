@@ -65,7 +65,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // 添加一个计算打字延迟的函数
 const calculateTypingDelay = (text) => {
   // 基本打字速度：假设平均60字/分钟，也就是1秒/字
-  const baseSpeed = 250; // 毫秒/字
+  const baseSpeed = 200; // 毫秒/字
   
   // 获取字符数
   const charCount = text.length;
@@ -74,9 +74,9 @@ const calculateTypingDelay = (text) => {
   let delay = charCount * (baseSpeed / 1);
   
   // 设置最小延迟，即使很短的消息也要有一定延迟
-  const minDelay = 1000;
+  const minDelay = 800;
   // 设置最大延迟，不要因为长消息等待太久
-  const maxDelay = 6000;
+  const maxDelay = 5000;
   
   // 确保延迟在合理范围内
   delay = Math.max(minDelay, delay);
