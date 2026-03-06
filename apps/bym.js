@@ -31,7 +31,7 @@ export class bym extends plugin {
    */
   calculateTypingDelay(text) {
     // 基本打字速度：假设平均每个字符200毫秒
-    const baseSpeed = 250; // 毫秒/字符
+    const baseSpeed = 200; // 毫秒/字符
     
     // 获取字符数
     const charCount = text.length;
@@ -40,8 +40,8 @@ export class bym extends plugin {
     let delay = charCount * baseSpeed;
     
     // 设置最小延迟和最大延迟
-    const minDelay = 1000;
-    const maxDelay = 3000;
+    const minDelay = 800;
+    const maxDelay = 5000;
     
     // 确保延迟在合理范围内
     delay = Math.max(minDelay, delay);
