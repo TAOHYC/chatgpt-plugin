@@ -5,6 +5,25 @@ import { customSplitRegex, filterResponseChunk } from '../utils/text.js'
 import core, { roleMap } from '../model/core.js'
 import { formatDate } from '../utils/common.js'
 
+const normalizeGroupList = (value) => {
+  const list = Array.isArray(value) ? value : (typeof value === 'string' ? value.split(/[,，;；|\s]/) : [])
+  const groupRegex = /^[1-9]\d{5,9}$/
+  return [...new Set(list.map(item => item?.toString().trim()).filter(item => groupRegex.test(item)))]
+}
+
+const checkGroupListPermission = (e, whitelist, blacklist) => {
+  const groupId = e.group_id?.toString()
+  const whiteGroups = normalizeGroupList(whitelist)
+  const blackGroups = normalizeGroupList(blacklist)
+
+  // 白名单优先：配置了白名单后，仅白名单内的群启用伪人；白名单命中的群不受黑名单影响。
+  if (whiteGroups.length > 0) {
+    return whiteGroups.includes(groupId)
+  }
+
+  return !blackGroups.includes(groupId)
+}
+
 export class bym extends plugin {
   constructor () {
     super({
@@ -12,12 +31,12 @@ export class bym extends plugin {
       dsc: 'bym',
       /** https://oicqjs.github.io/oicq/#events */
       event: 'message',
-      priority: '5000',
+      priority: '5000000000',
       rule: [
         {
           reg: '^[^#][sS]*',
           fnc: 'bym',
-          priority: '1145',
+          priority: '114514514514',
           log: false
         }
       ]
@@ -68,8 +87,8 @@ export class bym extends plugin {
       return await this.triggerReply(e, true)
     }
 
-    // 伪人禁用群
-    if (Config.bymDisableGroup?.includes(e.group_id?.toString())) {
+    // 伪人群名单过滤：仅支持群号；白名单优先于黑名单。
+    if (!checkGroupListPermission(e, Config.bymWhitelist, Config.bymBlacklist)) {
       return false
     }
 
