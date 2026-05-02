@@ -268,7 +268,8 @@ const defaultConfig = {
   enableBYM: false,
   // 触发对话的概率，百分比。比如5%就写5
   bymRate: 5,
-  bymDisableGroup: [],
+  bymWhitelist: [],
+  bymBlacklist: [],
   // 伪人模式触发骂人反击的关键词
   bymFuckList: [
     '艹'
@@ -333,6 +334,13 @@ if (fs.existsSync(`${_path}/plugins/chatgpt-plugin/config/config.json`)) {
       logger.warn('chatgpt插件即将使用默认配置')
     }
   }
+}
+if (config && typeof config === 'object') {
+  // 兼容旧配置：原 bymDisableGroup 迁移为伪人黑名单，之后不再参与运行逻辑。
+  if (Array.isArray(config.bymDisableGroup) && !Object.prototype.hasOwnProperty.call(config, 'bymBlacklist')) {
+    config.bymBlacklist = config.bymDisableGroup
+  }
+  delete config.bymDisableGroup
 }
 config = lodash.merge({}, defaultConfig, config)
 config.version = defaultConfig.version
