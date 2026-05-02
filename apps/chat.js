@@ -89,6 +89,29 @@ const calculateTypingDelay = (text) => {
   return delay;
 };
 
+
+const normalizeGroupList = (value) => {
+  const list = Array.isArray(value) ? value : (typeof value === 'string' ? value.split(/[,，;；|\s]/) : [])
+  const groupRegex = /^[1-9]\d{5,9}$/
+  return [...new Set(list.map(item => item?.toString().trim()).filter(item => groupRegex.test(item)))]
+}
+
+const checkGroupListPermission = (e, whitelist, blacklist) => {
+  // 名单仅处理群聊；私聊仍由 enablePrivateChat 控制。
+  if (!e.isGroup) return true
+
+  const groupId = e.group_id?.toString()
+  const whiteGroups = normalizeGroupList(whitelist)
+  const blackGroups = normalizeGroupList(blacklist)
+
+  // 白名单优先：配置了白名单后，仅白名单内的群可用；白名单命中的群不再受黑名单影响。
+  if (whiteGroups.length > 0) {
+    return whiteGroups.includes(groupId)
+  }
+
+  // 未配置白名单时，黑名单内的群禁用。
+  return !blackGroups.includes(groupId)
+}
 export class chatgpt extends plugin {
   constructor (e) {
     let toggleMode = Config.toggleMode
@@ -604,44 +627,9 @@ export class chatgpt extends plugin {
     if (!e.isMaster && e.isPrivate && !Config.enablePrivateChat) {
       return false
     }
-    // 黑白名单过滤对话
-    let [whitelist = [], blacklist = []] = [Config.whitelist, Config.blacklist]
-    let chatPermission = false // 对话许可
-    if (typeof whitelist === 'string') {
-      whitelist = [whitelist]
-    }
-    if (typeof blacklist === 'string') {
-      blacklist = [blacklist]
-    }
-    if (whitelist.join('').length > 0) {
-      for (const item of whitelist) {
-        if (item.length > 11) {
-          const [group, qq] = item.split('^')
-          if (e.isGroup && group === e.group_id.toString() && qq === e.sender.user_id.toString()) {
-            chatPermission = true
-            break
-          }
-        } else if (item.startsWith('^') && item.slice(1) === e.sender.user_id.toString()) {
-          chatPermission = true
-          break
-        } else if (e.isGroup && !item.startsWith('^') && item === e.group_id.toString()) {
-          chatPermission = true
-          break
-        }
-      }
-    }
-    // 当前用户有对话许可则不再判断黑名单
-    if (!chatPermission) {
-      if (blacklist.join('').length > 0) {
-        for (const item of blacklist) {
-          if (e.isGroup && !item.startsWith('^') && item === e.group_id.toString()) return false
-          if (item.startsWith('^') && item.slice(1) === e.sender.user_id.toString()) return false
-          if (item.length > 11) {
-            const [group, qq] = item.split('^')
-            if (e.isGroup && group === e.group_id.toString() && qq === e.sender.user_id.toString()) return false
-          }
-        }
-      }
+    // 群名单过滤对话：仅支持群号；白名单优先于黑名单。
+    if (!checkGroupListPermission(e, Config.whitelist, Config.blacklist)) {
+      return false
     }
     let userSetting = await getUserReplySetting(this.e)
     let useTTS = !!userSetting.useTTS
