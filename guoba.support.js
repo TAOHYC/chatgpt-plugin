@@ -37,6 +37,54 @@ export function supportGuoba() {
           component: 'Divider'
         },
         {
+          field: 'whitelist',
+          label: '对话白名单',
+          bottomHelpMessage: '仅填写群号。配置后，仅白名单内的群可使用对话；白名单优先，命中的群不受黑名单影响。多个群号可用逗号、空格或逐个标签分隔。',
+          component: 'GTags',
+          componentProps: {
+            placeholder: '请输入群号',
+            allowAdd: true,
+            allowDel: true,
+            valueParser: ((value) => value.split(/[,，;；|\s]/) || []),
+          },
+        },
+        {
+          field: 'blacklist',
+          label: '对话黑名单',
+          bottomHelpMessage: '仅填写群号。未配置白名单时，黑名单内的群无法使用对话；若同一群在白名单中，则黑名单无效。',
+          component: 'GTags',
+          componentProps: {
+            placeholder: '请输入群号',
+            allowAdd: true,
+            allowDel: true,
+            valueParser: ((value) => value.split(/[,，;；|\s]/) || []),
+          },
+        },
+        {
+          field: 'bymWhitelist',
+          label: '伪人白名单',
+          bottomHelpMessage: '仅填写群号。配置后，仅白名单内的群启用伪人；白名单优先，命中的群不受伪人黑名单影响。',
+          component: 'GTags',
+          componentProps: {
+            placeholder: '请输入群号',
+            allowAdd: true,
+            allowDel: true,
+            valueParser: ((value) => value.split(/[,，;；|\s]/) || []),
+          },
+        },
+        {
+          field: 'bymBlacklist',
+          label: '伪人黑名单',
+          bottomHelpMessage: '仅填写群号。未配置伪人白名单时，黑名单内的群禁用伪人；若同一群在伪人白名单中，则黑名单无效。',
+          component: 'GTags',
+          componentProps: {
+            placeholder: '请输入群号',
+            allowAdd: true,
+            allowDel: true,
+            valueParser: ((value) => value.split(/[,，;；|\s]/) || []),
+          },
+        },
+        {
           field: 'toggleMode',
           label: '触发方式',
           bottomHelpMessage: 'at模式下只有at机器人才会回复。#chat模式下不需要at，但需要添加前缀#chat 其他指令：#chatgpt[开启|关闭]回复确认',
@@ -65,20 +113,6 @@ export function supportGuoba() {
           label: '输入黑名单',
           bottomHelpMessage: '检查输入结果中是否有违禁词，如果存在黑名单中的违禁词则不输出。英文逗号隔开',
           component: 'InputTextArea'
-        },
-        {
-          field: 'whitelist',
-          label: '对话白名单',
-          bottomHelpMessage: '呆毛版白名单优先方案：群号用英文逗号分割(例如群号：123456,654321)；如果想指定某QQ号则在QQ号前面添加^(例如QQ号：^123456)；如果想指定某群的某QQ号则使用 群号^qq 的格式(例如：123456^123456)。说明：1、全局白名单模式，即除白名单以外的都不能使用插件对话；2、可在白名单的基础上指定黑名单；3、若什么都不填则关闭白名单功能仅使用黑名单功能。' +
-            '白名单优先级：群号^qq > qq > 群号。\n' +
-            '黑名单优先级: 群号 > qq > 群号^qq。',
-          component: 'Input'
-        },
-        {
-          field: 'blacklist',
-          label: '对话黑名单',
-          bottomHelpMessage: '参考白名单设置规则。',
-          component: 'Input'
         },
         {
           field: 'switch_ChatCooldown',
@@ -1687,18 +1721,6 @@ export function supportGuoba() {
           }
         },
         {
-          field: 'bymDisableGroup',
-          label: '伪人禁用群',
-          bottomHelpMessage: '设置在该群禁用伪人模式',
-          component: "GTags",
-          componentProps: {
-            placeholder: '请输入群号',
-            allowAdd: true,
-            allowDel: true,
-            valueParser: ((value) => value.split(',') || []),
-          },
-        },
-        {
           field: 'bymMode',
           label: '伪人模型',
           component: 'Select',
@@ -1948,22 +1970,21 @@ export function supportGuoba() {
           if (keyPath === 'blockWords' || keyPath === 'promptBlockWords' || keyPath === 'initiativeChatGroups' || keyPath === 'paimon_chuoyichuo_ByMsgGroups') {
             value = value.toString().split(/[,，;；\|]/)
           }
-          else if (keyPath === 'blacklist' || keyPath === 'whitelist') {
-            // 6-10位数的群号或qq
-            const regex = /^\^?[1-9]\d{5,9}(\^[1-9]\d{5,9})?$/
+          else if (keyPath === 'blacklist' || keyPath === 'whitelist' || keyPath === 'bymWhitelist' || keyPath === 'bymBlacklist') {
+            // 名单仅支持群号；白名单优先逻辑在对话/伪人入口处处理。
+            const regex = /^[1-9]\d{5,9}$/
             const inputSet = new Set()
-            value = value.toString().split(/[,，;；|\s]/).reduce((acc, item) => {
-              item = item.trim()
-              if (!inputSet.has(item) && regex.test(item)) {
-                if (item.length <= 11 || (item.length <= 21 && item.length > 11 && !item.startsWith('^'))) {
-                  inputSet.add(item)
-                  acc.push(item)
-                }
+            const inputList = Array.isArray(value) ? value : value.toString().split(/[,，;；|\s]/)
+            value = inputList.reduce((acc, item) => {
+              item = item?.toString().trim()
+              if (item && !inputSet.has(item) && regex.test(item)) {
+                inputSet.add(item)
+                acc.push(item)
               }
               return acc
             }, [])
           }
-          else if (keyPath === 'autoEmoticons.allowGroups' || keyPath === 'autoEmoticons.getBotByQQ_targetQQArr' || keyPath === 'bymDisableGroup') {
+          else if (keyPath === 'autoEmoticons.allowGroups' || keyPath === 'autoEmoticons.getBotByQQ_targetQQArr') {
             value = value.map(item => item.trim()).filter(item => item !== '')
           }
 
